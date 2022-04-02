@@ -30,7 +30,7 @@ function anotherFunction(anotherParameter) {
 
     // Wait parameters might work in comments, anotherParameter
 
-    for(var loopIteration = 1; loopIteration < 10; loopIteration++) {
+    for(var loopIteration = -3; loopIteration < 3; loopIteration++) {
         .elementloopIteration {
             transform: translate(calc(loopIteration * 10px), 0);
         }

@@ -279,7 +279,6 @@ function parseLoops(lines) {
                     }
                     lines[i] = null;
                     lines[k + 1] = null;
-                    console.log(lines);
                     if(!forEnd) {
                         errorMessage("For loop is not closed");
                         process.exit(1);
@@ -290,21 +289,26 @@ function parseLoops(lines) {
                     let loopEnd = parseInt(forArgs[6]);
                     let loopComparison = forArgs[5];
 
+                    let realLoopIndex = 0;
                     if(loopComparison === "<") {
                         for(var k = loopIterator; k < loopEnd; k++) {
-                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k));
+                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k, realLoopIndex));
+                            realLoopIndex++;
                         }
                     } else if(loopComparison === ">") {
                         for(var k = loopIterator; k > loopEnd; k--) {
-                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k));
+                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k, realLoopIndex));
+                            realLoopIndex++;
                         }
                     } else if(loopComparison === "<=") {
                         for(var k = loopIterator; k <= loopEnd; k++) {
-                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k));
+                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k, realLoopIndex));
+                            realLoopIndex++;
                         }
                     } else if(loopComparison === ">=") {
                         for(var k = loopIterator; k >= loopEnd; k--) {
-                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k));
+                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k, realLoopIndex));
+                            realLoopIndex++;
                         }
                     }
 
@@ -318,8 +322,8 @@ function parseLoops(lines) {
     return { lines };
 }
 
-function parseLoopContents(forLine, lines, contents, loopIterationVar, loopIteration) {
-    let lineOffset = loopIteration * (contents.length);
+function parseLoopContents(forLine, lines, contents, loopIterationVar, loopIteration, realLoopIteration) {
+    let lineOffset = realLoopIteration * (contents.length);
 
     for(var i = 0; i < contents.length; i++) {
         let line = contents[i];
