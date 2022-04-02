@@ -6,21 +6,27 @@ h1 {
     // This is a JS variable definition
     let coolThing = 5rem; let otherCoolThing = 6rem;
 
+    let defaultColor = purple;
+
     // This is a CSS variable definition
     --CSScoolThing: 3rem;
 
-    testFunction();
+    testFunction(orange);
 }
 
-function testFunction() {
+function testFunction(colorName) {
     // This is a JS comment
 
-    color: yellow !important;
+    color: colorName !important;
 
-    anotherFunction();
+    anotherFunction(colorName);
 }
 
-function anotherFunction() {
+function anotherFunction(anotherParameter) {
     // This is a JS comment
     margin: 3rem;
+
+    background-color: var(--defaultColor, anotherParameter);
+
+    // Wait parameters might work in comments, anotherParameter
 }

@@ -78,51 +78,7 @@ try{
         lines = fixLines(lines);
 
         // Replace the function calls with the function contents
-        let tryAgain = true;
-        let functionCallDepth = 0;
-        while(tryAgain) {
-            tryAgain = false;
-            for(var i = 0; i < lines.length; i++) {
-                let line = lines[i];
-                for(var j = 0; j < line.length; j++) {
-                    const lineSplit = line.substring(j);
-                    for(var k = 0; k < functions.length; k++) {
-                        const functionName = functions[k].name;
-                        const functionContents = functions[k].contents;
-                        if(lineSplit.startsWith(functionName + '(')) {
-                            let foundFunction = false;
-                            const splitContents = functionContents.split("\n");
-                            for(var l = 0; l < splitContents.length; l++) {
-                                lines.splice(i + l, 0, lines[i].substring(0, j) + splitContents[l]);
-                                let checkForFunctionLine = lines[i + l];
-                                for(var m = 0; m < checkForFunctionLine.length; m++) {
-                                    const checkForFunctionLineSplit = checkForFunctionLine.substring(m);
-                                    for(var n = 0; n < functions.length; n++) {
-                                        const checkForFunctionName = functions[n].name;
-                                        if(checkForFunctionLineSplit.startsWith(checkForFunctionName + '(')) {
-                                            foundFunction = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            lines.splice(i + l, 1);
-                            line = lines[i];
-                            tryAgain = true;
-                            if(foundFunction) {
-                                functionCallDepth++;
-                                if(functionCallDepth > maxFunctionCallDepth) {
-                                    errorMessage("Maximum function call depth exceeded");
-                                    process.exit(1);
-                                }
-                            } else {
-                                functionCallDepth = 0;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        ({ lines } = replaceFunctions(lines, functions));
 
         lines = fixLines(lines);
 
@@ -154,6 +110,9 @@ function parseFunctions(lines) {
                 // If we find a function definition, add it to functions and loop through the lines again.
                 if(lineSplit.startsWith('function ')) {
                     const functionName = line.substring(j + 9).split("(")[0].trim();
+                    let functionArgs = line.substring(j + 9).split("(")[1].split(")").slice(0, 1)[0].split(",").map(arg => arg.trim());
+                    functionArgs = functionArgs.filter(arg => arg !== "");
+                    
                     // Find the contents of the function
                     lines[i] = null;
                     
@@ -175,7 +134,8 @@ function parseFunctions(lines) {
                     functions.push(
                         {
                             name: functionName,
-                            contents: functionContents 
+                            contents: functionContents,
+                            args: functionArgs
                         }
                     );
                     tryAgain = true;
@@ -203,4 +163,69 @@ function fixLines(lines) {
 
 function errorMessage(message) {
     console.log(colors.bright, colors.fg.red, "ERROR: ", colors.reset, colors.fg.red, message, colors.reset);
+}
+
+function replaceFunctions(lines, functions) {
+    let tryAgain = true;
+    let functionCallDepth = 0;
+    while(tryAgain) {
+        tryAgain = false;
+        for(var i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            for(var j = 0; j < line.length; j++) {
+                const lineSplit = line.substring(j);
+                for(var k = 0; k < functions.length; k++) {
+                    const functionName = functions[k].name;
+                    const functionContents = functions[k].contents;
+                    if(lineSplit.startsWith(functionName + '(')) {
+                        let foundFunction = false;
+                        const functionArgsString = line.substring(j + functionName.length + 1).split(")")[0].trim();
+                        const functionArgs = functionArgsString.split(",").map(arg => arg.trim());
+                        if(functionArgs === undefined) functionArgs = [];
+                        const splitContents = functionContents.split("\n");
+                        for(var l = 0; l < splitContents.length; l++) {
+                            lines.splice(i + l, 0, lines[i].substring(0, j) + splitContents[l]);
+                            let checkForFunctionLine = lines[i + l];
+                            for(var m = 0; m < checkForFunctionLine.length; m++) {
+                                const checkForFunctionLineSplit = checkForFunctionLine.substring(m);
+                                for(var n = 0; n < functions.length; n++) {
+                                    const checkForFunctionName = functions[n].name;
+                                    if(checkForFunctionLineSplit.startsWith(checkForFunctionName + '(')) {
+                                        foundFunction = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            let checkForArgsLine = lines[i + l];
+                            for(var m = 0; m < checkForArgsLine.length; m++) {
+                                const checkForArgsLineSplit = checkForArgsLine.substring(m);
+                                // Make sure we're not inside a comment
+                                
+                                for(var n = 0; n < functions[k].args.length; n++) {
+                                    const checkForFunctionArg = functions[k].args[n];
+                                    if(checkForArgsLineSplit.startsWith(checkForFunctionArg)) {
+                                        lines[i + l] = lines[i + l].substring(0, m) + functionArgs[n] + checkForArgsLineSplit.substring(checkForFunctionArg.length);
+                                    }
+                                }
+                            }
+                        }
+                        lines.splice(i + l, 1);
+                        line = lines[i];
+                        tryAgain = true;
+                        if(foundFunction) {
+                            functionCallDepth++;
+                            if(functionCallDepth > maxFunctionCallDepth) {
+                                errorMessage("Maximum function call depth exceeded");
+                                process.exit(1);
+                            }
+                        } else {
+                            functionCallDepth = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return { lines };
 }
