@@ -22,6 +22,34 @@ h1 {
     
     /* Wait parameters might work in comments, orange */
     
+    .element1 {
+    transform: translate(calc(1 * 10px), 0);
+    }
+    .element2 {
+    transform: translate(calc(2 * 10px), 0);
+    }
+    .element3 {
+    transform: translate(calc(3 * 10px), 0);
+    }
+    .element4 {
+    transform: translate(calc(4 * 10px), 0);
+    }
+    .element5 {
+    transform: translate(calc(5 * 10px), 0);
+    }
+    .element6 {
+    transform: translate(calc(6 * 10px), 0);
+    }
+    .element7 {
+    transform: translate(calc(7 * 10px), 0);
+    }
+    .element8 {
+    transform: translate(calc(8 * 10px), 0);
+    }
+    .element9 {
+    transform: translate(calc(9 * 10px), 0);
+    }
+    
     
 }
 

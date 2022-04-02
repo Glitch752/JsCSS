@@ -53,6 +53,10 @@ try{
         
         let lines = fileContents.split('\n');
 
+        ({ lines } = parseLoops(lines));
+
+        lines = fixLines(lines);
+
         // Parse the comments and variables
         for(var i = 0; i < lines.length; i++) {
             let line = lines[i];
@@ -200,7 +204,7 @@ function replaceFunctions(lines, functions) {
                             for(var m = 0; m < checkForArgsLine.length; m++) {
                                 const checkForArgsLineSplit = checkForArgsLine.substring(m);
                                 // Make sure we're not inside a comment
-                                
+
                                 for(var n = 0; n < functions[k].args.length; n++) {
                                     const checkForFunctionArg = functions[k].args[n];
                                     if(checkForArgsLineSplit.startsWith(checkForFunctionArg)) {
@@ -225,6 +229,109 @@ function replaceFunctions(lines, functions) {
                 }
             }
         }
+    }
+
+    return { lines };
+}
+
+function parseLoops(lines) {
+    let tryAgain = true;
+    while(tryAgain) {
+        tryAgain = false;
+        for(var i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            if(line === null) continue;
+            for(var j = 0; j < line.length; j++) {
+                const lineSplit = line.substring(j);
+                if(lineSplit.startsWith('for(')) {
+                    let forContents = [];
+                    let forEnd = false;
+                    let forArgs = line.substring(j + 4).split(")").slice(0, 1)[0].split(" ").map(arg => arg.trim());
+                    if(forArgs.length < 8 || forArgs.length > 9) {
+                        errorMessage("Invalid for loop syntax. Usage: for(var i = __; i < __; i++) { ... }");
+                        process.exit(1);
+                    }
+                    if(
+                        (forArgs[0] !== "var" && forArgs[0] !== "let") ||
+                        forArgs[2] !== "=" ||
+                        (forArgs[5] !== "<" && forArgs[5] !== ">" && forArgs[5] !== "<=" && forArgs[5] !== ">=")) {
+                        errorMessage("Invalid for loop syntax. Usage: for(var i = __; i < __; i++) { ... }");
+                        process.exit(1);
+                    }
+                    if(
+                        !(forArgs[1] === forArgs[4] && forArgs[1] === forArgs[7].substring(0, forArgs[7].length - 2))
+                    ) {
+                        errorMessage("Invalid for loop syntax. Usage: for(var i = __; i < __; i++) { ... }");
+                        process.exit(1);
+                    }
+                    for(var k = i + 1; k < lines.length; k++) {
+                        if(lines[k] === null) continue;
+                        for(var l = 0; l < lines[k].length; l++) {
+                            const lineSplit = lines[k].substring(l);
+                            if(lineSplit.startsWith('}')) {
+                                forEnd = true;
+                            }
+                        }
+                        forContents.push(lines[k]);
+                        lines[k] = null;
+
+                        if(forEnd) break;
+                    }
+                    lines[i] = null;
+                    lines[k + 1] = null;
+                    console.log(lines);
+                    if(!forEnd) {
+                        errorMessage("For loop is not closed");
+                        process.exit(1);
+                    }
+                    let loopIterator = parseInt(forArgs[3]);
+                    let loopIterationVar = forArgs[1];
+
+                    let loopEnd = parseInt(forArgs[6]);
+                    let loopComparison = forArgs[5];
+
+                    if(loopComparison === "<") {
+                        for(var k = loopIterator; k < loopEnd; k++) {
+                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k));
+                        }
+                    } else if(loopComparison === ">") {
+                        for(var k = loopIterator; k > loopEnd; k--) {
+                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k));
+                        }
+                    } else if(loopComparison === "<=") {
+                        for(var k = loopIterator; k <= loopEnd; k++) {
+                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k));
+                        }
+                    } else if(loopComparison === ">=") {
+                        for(var k = loopIterator; k >= loopEnd; k--) {
+                            ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k));
+                        }
+                    }
+
+                    tryAgain = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    return { lines };
+}
+
+function parseLoopContents(forLine, lines, contents, loopIterationVar, loopIteration) {
+    let lineOffset = loopIteration * (contents.length);
+
+    for(var i = 0; i < contents.length; i++) {
+        let line = contents[i];
+        if(line === null) continue;
+        for(var j = 0; j < line.length; j++) {
+            const lineSplit = line.substring(j);
+            if(lineSplit.startsWith(loopIterationVar)) {
+                line = line.substring(0, j) + loopIteration + lineSplit.substring(loopIterationVar.length);
+            }
+        }
+
+        lines.splice(forLine + lineOffset + i, 0, line);
     }
 
     return { lines };

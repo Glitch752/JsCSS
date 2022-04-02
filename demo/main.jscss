@@ -29,4 +29,10 @@ function anotherFunction(anotherParameter) {
     background-color: var(--defaultColor, anotherParameter);
 
     // Wait parameters might work in comments, anotherParameter
+
+    for(var loopIteration = 1; loopIteration < 10; loopIteration++) {
+        .elementloopIteration {
+            transform: translate(calc(loopIteration * 10px), 0);
+        }
+    }
 }
