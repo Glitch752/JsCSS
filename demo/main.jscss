@@ -1,0 +1,26 @@
+h1 {
+    font-size: 10rem;
+    color: red; // This is a JS comment
+    // This is a JS comment on a new line
+    /* And this is a CSS comment */
+    // This is a JS variable definition
+    let coolThing = 5rem; let otherCoolThing = 6rem;
+
+    // This is a CSS variable definition
+    --CSScoolThing: 3rem;
+
+    testFunction();
+}
+
+function testFunction() {
+    // This is a JS comment
+
+    color: yellow !important;
+
+    anotherFunction();
+}
+
+function anotherFunction() {
+    // This is a JS comment
+    margin: 3rem;
+}
