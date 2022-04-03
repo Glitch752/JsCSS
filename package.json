@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "expr-eval": "^2.0.2",
-    "PrettyCSS": "git+https://github.com/fidian/PrettyCSS.git"
+    "cssbeautify": "^0.3.1",
+    "expr-eval": "^2.0.2"
   }
 }

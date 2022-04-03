@@ -22,7 +22,7 @@ const parser = new Parser({
     }
 });
 
-const PrettyCSS = require('PrettyCSS');
+const cssBeautify = require('cssbeautify');
 
 const colors = {
     reset: "\x1b[0m",
@@ -117,9 +117,13 @@ try{
         fileContents = lines.join("\n");
 
         // Format the CSS
-        fileContents = PrettyCSS.parse(fileContents, {comment_pre: "\n"}).toString();
+        fileContents = cssBeautify(fileContents, {
+            indent: '    ',
+            openbrace: 'end-of-line',
+            autosemicolon: true
+        });
 
-        console.log("Sucessfully compiled JsCSS code to CSS!")
+        console.log("Sucessfully compiled JsCSS code to CSS!");
 
         fs.writeFileSync(path.join(path.parse(filePath).dir, path.parse(filePath).name + ".css"), fileContents);
     } else {
