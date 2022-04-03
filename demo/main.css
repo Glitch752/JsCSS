@@ -22,26 +22,14 @@ h1 {
     
     /* Wait parameters might work in comments, orange */
     
-    .element-3 {
-    transform: translate(calc(-3 * 10px), 0);
-    }
-    .element-2 {
-    transform: translate(calc(-2 * 10px), 0);
-    }
-    .element-1 {
-    transform: translate(calc(-1 * 10px), 0);
-    }
-    .element0 {
-    transform: translate(calc(0 * 10px), 0);
-    }
-    .element1 {
-    transform: translate(calc(1 * 10px), 0);
-    }
-    .element2 {
-    transform: translate(calc(2 * 10px), 0);
-    }
-    
     
 }
 
-
+
+
+        .element-3 {
+            transform: translate(calc(-3 * 10px), 0);
+        }
+        .element0 {
+            transform: translate(calc(0 * 10px), 0);
+        }

@@ -96,3 +96,5 @@ h1 {
 
 
 ```
+
+Mathematical statements work using [expr-eval](https://github.com/silentmatt/expr-eval), which allows for many advanced features. 

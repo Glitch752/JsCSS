@@ -1,6 +1,29 @@
 const fs = require('fs');
 const path = require('path');
 
+const Parser = require('expr-eval').Parser;
+const parser = new Parser({
+    operators: {
+        add: true,
+        concatenate: true,
+        conditional: true,
+        divide: true,
+        factorial: true,
+        multiply: true,
+        power: true,
+        remainder: true,
+        subtract: true,
+
+        logical: true,
+        comparison: true,
+
+        'in': false,
+        assignment: false
+    }
+});
+
+
+
 const colors = {
     reset: "\x1b[0m",
     bright: "\x1b[1m",
@@ -75,6 +98,11 @@ try{
                 }
             }
         }
+
+        // Parse the conditional statements
+        ({ lines } = parseConditionals(lines));
+
+        lines = fixLines(lines);
 
         // Parse the functions
         ({ functions, lines } = parseFunctions(lines));
@@ -157,7 +185,7 @@ function fixLines(lines) {
     lines = [];
 
     for(var i = 0; i < oldLines.length; i++) {
-        if(oldLines[i] !== null) {
+        if(oldLines[i] != null) {
             lines.push(oldLines[i]);
         }
     }
@@ -264,12 +292,21 @@ function parseLoops(lines) {
                         errorMessage("Invalid for loop syntax. Usage: for(var i = __; i < __; i++) { ... }");
                         process.exit(1);
                     }
+                    let openBracketCount = 0;
                     for(var k = i + 1; k < lines.length; k++) {
                         if(lines[k] === null) continue;
                         for(var l = 0; l < lines[k].length; l++) {
                             const lineSplit = lines[k].substring(l);
+                            if(lineSplit.startsWith('{')) {
+                                openBracketCount++;
+                            }
                             if(lineSplit.startsWith('}')) {
-                                forEnd = true;
+                                openBracketCount--;
+
+                                if(openBracketCount === 0) {
+                                    forEnd = true;
+                                    break;
+                                }
                             }
                         }
                         forContents.push(lines[k]);
@@ -336,6 +373,75 @@ function parseLoopContents(forLine, lines, contents, loopIterationVar, loopItera
         }
 
         lines.splice(forLine + lineOffset + i, 0, line);
+    }
+
+    return { lines };
+}
+
+function parseConditionals(lines) {
+    let tryAgain = true;
+    while(tryAgain) {
+        tryAgain = false;
+        for(var i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            if(line == null) continue;
+            for(var j = 0; j < line.length; j++) {
+                const lineSplit = line.substring(j);
+                if(lineSplit.startsWith('if(')) {
+                    let ifContents = [];
+                    let ifEnd = false;
+                    let ifArgs = line.substring(j + 3).split(")").slice(0, 1)[0].trim();
+
+                    let openBracketCount = 0;
+                    for(var k = i + 1; k < lines.length; k++) {
+                        if(lines[k] === null) continue;
+                        for(var l = 0; l < lines[k].length; l++) {
+                            const lineSplit = lines[k].substring(l);
+                            if(lineSplit.startsWith('{')) {
+                                openBracketCount++;
+                            }
+                            if(lineSplit.startsWith('}')) {
+                                openBracketCount--;
+
+                                if(openBracketCount === 0) {
+                                    ifEnd = true;
+                                    break;
+                                }
+                            }
+                        }
+                        ifContents.push(lines[k]);
+                        lines[k] = null;
+                        if(ifEnd) break;
+                    }
+                    lines[i] = null;
+                    lines[k + 1] = null;
+                    if(!ifEnd) {
+                        errorMessage("If statement is not closed");
+                        process.exit(1);
+                    }
+
+                    ifArgs = ifArgs.replace(/===/g, "==");
+                    
+                    let ifResult = null;
+                    try{
+                        ifResult = parser.evaluate(ifArgs);
+                    } catch(e) {
+                        errorMessage("Error in if statement - " + e.message);
+                        process.exit(1);
+                    }
+                    if(typeof ifResult !== "boolean") {
+                        errorMessage("Invalid if statement syntax. Result must be a boolean.");
+                        process.exit(1);
+                    }
+
+                    if(ifResult) {
+                        for(var k = 0; k < ifContents.length; k++) {
+                            lines.splice(i + k, 0, ifContents[k]);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     return { lines };
