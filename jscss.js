@@ -22,7 +22,7 @@ const parser = new Parser({
     }
 });
 
-
+const PrettyCSS = require('PrettyCSS');
 
 const colors = {
     reset: "\x1b[0m",
@@ -115,6 +115,9 @@ try{
         lines = fixLines(lines);
 
         fileContents = lines.join("\n");
+
+        // Format the CSS
+        fileContents = PrettyCSS.parse(fileContents, {comment_pre: "\n"}).toString();
 
         console.log("Sucessfully compiled JsCSS code to CSS!")
 
