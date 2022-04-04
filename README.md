@@ -11,6 +11,7 @@ h1 {
     color: red; // This is a JS comment
     // This is a JS comment on a new line
     /* And this is a CSS comment */
+
     // This is a JS variable definition
     let coolThing = 5rem; let otherCoolThing = 6rem;
 
@@ -25,76 +26,98 @@ h1 {
 function testFunction(colorName) {
     // This is a JS comment
 
-    color: colorName !important;
+    color: {colorName} !important;
 
-    anotherFunction(colorName);
+    anotherFunction({colorName}, green);
 }
 
-function anotherFunction(anotherParameter) {
+function anotherFunction(anotherParameter, secondParameter) {
     // This is a JS comment
     margin: 3rem;
 
-    background-color: var(--defaultColor, anotherParameter);
+    background-color: var(--defaultColor, {anotherParameter});
 
-    // Wait parameters might work in comments, anotherParameter
+    }
+    h1::after {
+        content: "";
+        display: block;
+        height: 100%;
+        width: 100%;
+        background-color: var({secondParameter}, orange);
 
-    for(var loopIteration = -3; loopIteration < 3; loopIteration++) {
-        .elementloopIteration {
-            transform: translate(calc(loopIteration * 10px), 0);
+    // Parameters are still modified if they are in comments: anotherParameter
+}
+
+// For loop
+for(var loopIteration = -10; loopIteration < 10; loopIteration++) {
+    if({loopIteration} % 3 === 0) {
+        .element{loopIteration} {
+            transform: translate(calc({loopIteration} * 10px), 0);
         }
     }
 }
 ```
 
 After:
-```
-h1 {
+```h1 {
     font-size: 10rem;
-    color: red; /* This is a JS comment */
+    color: red;
+ /* This is a JS comment */
     /* This is a JS comment on a new line */
     /* And this is a CSS comment */
     /* This is a JS variable definition */
-    --coolThing: 5rem; --otherCoolThing: 6rem;
-
+    --coolThing: 5rem;
+    --otherCoolThing: 6rem;
     --defaultColor: purple;
-
     /* This is a CSS variable definition */
     --CSScoolThing: 3rem;
-
     /* This is a JS comment */
-    
     color: orange !important;
-    
     /* This is a JS comment */
     margin: 3rem;
-    
     background-color: var(--defaultColor, orange);
-    
-    /* Wait parameters might work in comments, orange */
-    
-    .element-3 {
-    transform: translate(calc(-3 * 10px), 0);
-    }
-    .element-2 {
-    transform: translate(calc(-2 * 10px), 0);
-    }
-    .element-1 {
-    transform: translate(calc(-1 * 10px), 0);
-    }
-    .element0 {
-    transform: translate(calc(0 * 10px), 0);
-    }
-    .element1 {
-    transform: translate(calc(1 * 10px), 0);
-    }
-    .element2 {
-    transform: translate(calc(2 * 10px), 0);
-    }
-    
-    
+}
+
+h1::after {
+    content: "";
+    display: block;
+    height: 100%;
+    width: 100%;
+    background-color: var(green, orange);
+    /* Parameters are still modified if they are in comments: anotherParameter */;
 }
 
 
+
+/* For loop */
+.element-9 {
+    transform: translate(calc(-9 * 10px), 0);
+}
+
+.element-6 {
+    transform: translate(calc(-6 * 10px), 0);
+}
+
+.element-3 {
+    transform: translate(calc(-3 * 10px), 0);
+}
+
+.element0 {
+    transform: translate(calc(0 * 10px), 0);
+}
+
+.element3 {
+    transform: translate(calc(3 * 10px), 0);
+}
+
+.element6 {
+    transform: translate(calc(6 * 10px), 0);
+}
+
+.element9 {
+    transform: translate(calc(9 * 10px), 0);
+}
+
 ```
 
-Mathematical statements work using [expr-eval](https://github.com/silentmatt/expr-eval), which allows for many advanced features. 
+Mathematical statements work using [expr-eval](https://github.com/silentmatt/expr-eval), which allows for many advanced features
