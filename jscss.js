@@ -242,8 +242,8 @@ function replaceFunctions(lines, functions) {
 
                                 for(var n = 0; n < functions[k].args.length; n++) {
                                     const checkForFunctionArg = functions[k].args[n];
-                                    if(checkForArgsLineSplit.startsWith(checkForFunctionArg)) {
-                                        lines[i + l] = lines[i + l].substring(0, m) + functionArgs[n] + checkForArgsLineSplit.substring(checkForFunctionArg.length);
+                                    if(checkForArgsLineSplit.startsWith("{" + checkForFunctionArg + "}")) {
+                                        lines[i + l] = lines[i + l].substring(0, m) + functionArgs[n] + checkForArgsLineSplit.substring(checkForFunctionArg.length + 2);
                                     }
                                 }
                             }
@@ -299,7 +299,7 @@ function parseLoops(lines) {
                         errorMessage("Invalid for loop syntax. Usage: for(var i = __; i < __; i++) { ... }");
                         process.exit(1);
                     }
-                    let openBracketCount = 0;
+                    let openBracketCount = 1;
                     for(var k = i + 1; k < lines.length; k++) {
                         if(lines[k] === null) continue;
                         for(var l = 0; l < lines[k].length; l++) {
@@ -316,13 +316,16 @@ function parseLoops(lines) {
                                 }
                             }
                         }
+                        if(forEnd) break;
                         forContents.push(lines[k]);
                         lines[k] = null;
-
-                        if(forEnd) break;
                     }
+
+                    lines = fixLines(lines);
+
                     lines[i] = null;
-                    lines[k + 1] = null;
+                    lines[i + 1] = null;
+
                     if(!forEnd) {
                         errorMessage("For loop is not closed");
                         process.exit(1);
@@ -334,6 +337,7 @@ function parseLoops(lines) {
                     let loopComparison = forArgs[5];
 
                     let realLoopIndex = 0;
+    
                     if(loopComparison === "<") {
                         for(var k = loopIterator; k < loopEnd; k++) {
                             ({ lines } = parseLoopContents(i, lines, forContents, loopIterationVar, k, realLoopIndex));
@@ -374,8 +378,8 @@ function parseLoopContents(forLine, lines, contents, loopIterationVar, loopItera
         if(line === null) continue;
         for(var j = 0; j < line.length; j++) {
             const lineSplit = line.substring(j);
-            if(lineSplit.startsWith(loopIterationVar)) {
-                line = line.substring(0, j) + loopIteration + lineSplit.substring(loopIterationVar.length);
+            if(lineSplit.startsWith("{" + loopIterationVar + "}")) {
+                line = line.substring(0, j) + loopIteration + lineSplit.substring(loopIterationVar.length + 2);
             }
         }
 
@@ -399,7 +403,7 @@ function parseConditionals(lines) {
                     let ifEnd = false;
                     let ifArgs = line.substring(j + 3).split(")").slice(0, 1)[0].trim();
 
-                    let openBracketCount = 0;
+                    let openBracketCount = 1;
                     for(var k = i + 1; k < lines.length; k++) {
                         if(lines[k] === null) continue;
                         for(var l = 0; l < lines[k].length; l++) {
@@ -416,12 +420,14 @@ function parseConditionals(lines) {
                                 }
                             }
                         }
+                        if(ifEnd) break;
                         ifContents.push(lines[k]);
                         lines[k] = null;
-                        if(ifEnd) break;
                     }
+
                     lines[i] = null;
-                    lines[k + 1] = null;
+                    lines[k] = null;
+
                     if(!ifEnd) {
                         errorMessage("If statement is not closed");
                         process.exit(1);

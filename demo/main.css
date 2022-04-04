@@ -15,7 +15,15 @@ h1 {
     /* This is a JS comment */
     margin: 3rem;
     background-color: var(--defaultColor, orange);
-    /* Parameters are still modified if they are in comments: orange */;
+}
+
+h1::after {
+    content: "";
+    display: block;
+    height: 100%;
+    width: 100%;
+    background-color: var(green, orange);
+    /* Parameters are still modified if they are in comments: anotherParameter */;
 }
 
 

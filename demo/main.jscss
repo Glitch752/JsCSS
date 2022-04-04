@@ -3,7 +3,7 @@ h1 {
     color: red; // This is a JS comment
     // This is a JS comment on a new line
     /* And this is a CSS comment */
-    
+
     // This is a JS variable definition
     let coolThing = 5rem; let otherCoolThing = 6rem;
 
@@ -18,25 +18,33 @@ h1 {
 function testFunction(colorName) {
     // This is a JS comment
 
-    color: colorName !important;
+    color: {colorName} !important;
 
-    anotherFunction(colorName);
+    anotherFunction({colorName}, green);
 }
 
-function anotherFunction(anotherParameter) {
+function anotherFunction(anotherParameter, secondParameter) {
     // This is a JS comment
     margin: 3rem;
 
-    background-color: var(--defaultColor, anotherParameter);
+    background-color: var(--defaultColor, {anotherParameter});
+
+    }
+    h1::after {
+        content: "";
+        display: block;
+        height: 100%;
+        width: 100%;
+        background-color: var({secondParameter}, orange);
 
     // Parameters are still modified if they are in comments: anotherParameter
 }
 
 // For loop
 for(var loopIteration = -10; loopIteration < 10; loopIteration++) {
-    if(loopIteration % 3 === 0) {
-        .elementloopIteration {
-            transform: translate(calc(loopIteration * 10px), 0);
+    if({loopIteration} % 3 === 0) {
+        .element{loopIteration} {
+            transform: translate(calc({loopIteration} * 10px), 0);
         }
     }
 }
