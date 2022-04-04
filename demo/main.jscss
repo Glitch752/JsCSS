@@ -46,5 +46,9 @@ for(var loopIteration = -10; loopIteration < 10; loopIteration++) {
         .element{loopIteration} {
             transform: translate(calc({loopIteration} * 10px), 0);
         }
+    } else {
+        .element{loopIteration} {
+            transform: translate(calc({loopIteration} * 10px), calc({loopIteration} * 10px));
+        }
     }
 }

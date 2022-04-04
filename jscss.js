@@ -400,6 +400,9 @@ function parseConditionals(lines) {
                 const lineSplit = line.substring(j);
                 if(lineSplit.startsWith('if(')) {
                     let ifContents = [];
+                    let elseContents = [];
+
+                    let isElse = false;
                     let ifEnd = false;
                     let ifArgs = line.substring(j + 3).split(")").slice(0, 1)[0].trim();
 
@@ -416,6 +419,30 @@ function parseConditionals(lines) {
 
                                 if(openBracketCount === 0) {
                                     ifEnd = true;
+                                    if(lineSplit.replace(/\s+/g, '').startsWith('}else')) {
+                                        isElse = true;
+                                        let elseEnd = false;
+                                        for(var m = k + 1; m < lines.length; m++) {
+                                            if(lines[m] === null) continue;
+                                            for(var n = 0; n < lines[m].length; n++) {
+                                                const lineSplit = lines[m].substring(n);
+                                                if(lineSplit.startsWith('{')) {
+                                                    openBracketCount++;
+                                                }
+                                                if(lineSplit.startsWith('}')) {
+                                                    openBracketCount--;
+
+                                                    if(openBracketCount === 0) {
+                                                        elseEnd = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if(elseEnd) break;
+                                            elseContents.push(lines[m]);
+                                            lines[m] = null;
+                                        }
+                                    }
                                     break;
                                 }
                             }
@@ -427,6 +454,12 @@ function parseConditionals(lines) {
 
                     lines[i] = null;
                     lines[k] = null;
+
+                    if(isElse) {
+                        lines[m] = null;
+                    }
+
+                    console.log(lines.join("\n"));
 
                     if(!ifEnd) {
                         errorMessage("If statement is not closed");
@@ -448,8 +481,15 @@ function parseConditionals(lines) {
                     }
 
                     if(ifResult) {
+                        if(isElse) {
+                            ifContents.pop();
+                        }
                         for(var k = 0; k < ifContents.length; k++) {
                             lines.splice(i + k, 0, ifContents[k]);
+                        }
+                    } else if(isElse) {
+                        for(var k = 0; k < elseContents.length; k++) {
+                            lines.splice(i + k, 0, elseContents[k]);
                         }
                     }
                 }
