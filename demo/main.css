@@ -38,11 +38,11 @@ h1::after {
 }
 
 .element-8 {
-    transform: translate(calc(-8 * 10px), calc(-8 * 10px));
+    transform: translate(0, calc(-8 * 10px));
 }
 
 .element-7 {
-    transform: translate(calc(-7 * 10px), calc(-7 * 10px));
+    transform: translate(0, calc(-7 * 10px));
 }
 
 .element-6 {
@@ -54,7 +54,7 @@ h1::after {
 }
 
 .element-4 {
-    transform: translate(calc(-4 * 10px), calc(-4 * 10px));
+    transform: translate(0, calc(-4 * 10px));
 }
 
 .element-3 {
@@ -62,11 +62,11 @@ h1::after {
 }
 
 .element-2 {
-    transform: translate(calc(-2 * 10px), calc(-2 * 10px));
+    transform: translate(0, calc(-2 * 10px));
 }
 
 .element-1 {
-    transform: translate(calc(-1 * 10px), calc(-1 * 10px));
+    transform: translate(0, calc(-1 * 10px));
 }
 
 .element0 {
@@ -74,11 +74,11 @@ h1::after {
 }
 
 .element1 {
-    transform: translate(calc(1 * 10px), calc(1 * 10px));
+    transform: translate(0, calc(1 * 10px));
 }
 
 .element2 {
-    transform: translate(calc(2 * 10px), calc(2 * 10px));
+    transform: translate(0, calc(2 * 10px));
 }
 
 .element3 {
@@ -86,7 +86,7 @@ h1::after {
 }
 
 .element4 {
-    transform: translate(calc(4 * 10px), calc(4 * 10px));
+    transform: translate(0, calc(4 * 10px));
 }
 
 .element5 {
@@ -98,11 +98,11 @@ h1::after {
 }
 
 .element7 {
-    transform: translate(calc(7 * 10px), calc(7 * 10px));
+    transform: translate(0, calc(7 * 10px));
 }
 
 .element8 {
-    transform: translate(calc(8 * 10px), calc(8 * 10px));
+    transform: translate(0, calc(8 * 10px));
 }
 
 .element9 {

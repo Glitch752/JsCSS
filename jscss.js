@@ -99,6 +99,10 @@ try{
             }
         }
 
+        ({ lines } = fixElseIf(lines));
+
+        lines = fixLines(lines);
+
         // Parse the conditional statements
         ({ lines } = parseConditionals(lines));
 
@@ -391,10 +395,11 @@ function parseLoopContents(forLine, lines, contents, loopIterationVar, loopItera
 
 function parseConditionals(lines) {
     let tryAgain = true;
+    console.log(lines.join("\n"));
     while(tryAgain) {
         tryAgain = false;
         for(var i = 0; i < lines.length; i++) {
-            let line = lines[i];
+            let line = lines[i]?.replace(/\s/g, '');
             if(line == null) continue;
             for(var j = 0; j < line.length; j++) {
                 const lineSplit = line.substring(j);
@@ -422,6 +427,7 @@ function parseConditionals(lines) {
                                     if(lineSplit.replace(/\s+/g, '').startsWith('}else')) {
                                         isElse = true;
                                         let elseEnd = false;
+                                        openBracketCount = 1;
                                         for(var m = k + 1; m < lines.length; m++) {
                                             if(lines[m] === null) continue;
                                             for(var n = 0; n < lines[m].length; n++) {
@@ -459,8 +465,6 @@ function parseConditionals(lines) {
                         lines[m] = null;
                     }
 
-                    console.log(lines.join("\n"));
-
                     if(!ifEnd) {
                         errorMessage("If statement is not closed");
                         process.exit(1);
@@ -481,16 +485,67 @@ function parseConditionals(lines) {
                     }
 
                     if(ifResult) {
-                        if(isElse) {
-                            ifContents.pop();
-                        }
                         for(var k = 0; k < ifContents.length; k++) {
                             lines.splice(i + k, 0, ifContents[k]);
                         }
+                        tryAgain = true;
                     } else if(isElse) {
                         for(var k = 0; k < elseContents.length; k++) {
                             lines.splice(i + k, 0, elseContents[k]);
                         }
+                        tryAgain = true;
+                    }
+                }
+            }
+        }
+    }
+
+    return { lines };
+}
+
+// Turn } else if( ... ) { ... } into } else { if( ... ) { ... }}
+function fixElseIf(lines) {
+    let tryAgain = true;
+    while(tryAgain) {
+        tryAgain = false;
+        let openIfElses = 0;
+        for(var i = 0; i < lines.length; i++) {
+            let line = lines[i].replace(/\s+/g, '');
+            if(line == null) continue;
+            for(var j = 0; j < line.length; j++) {
+                const lineSplit = line.substring(j);
+                if(lineSplit.startsWith('}elseif(')) {
+                    // Change the elseif to an else with the rest of the statement inside of it
+                    lines[i] = lines[i].substring(0, j) + "} else {";
+                    i++;
+                    lines.splice(i, 0, "if(" + lineSplit.split("(")[1].split(")")[0].trim() + ") {");
+                    openIfElses++;
+                }
+                if(lineSplit.startsWith('}else{')) {
+                    // Find the end of the else statement
+                    if(openIfElses === 0) break;
+                    let openBracketCount = 1;
+                    for(var k = i + 1; k < lines.length; k++) {
+                        if(lines[k] === null) continue;
+                        for(var l = 0; l < lines[k].length; l++) {
+                            const lineSplit = lines[k].substring(l);
+                            if(lineSplit.startsWith('{')) {
+                                openBracketCount++;
+                            }
+                            if(lineSplit.startsWith('}')) {
+                                openBracketCount--;
+
+                                if(openBracketCount === 0) {
+                                    for(var m = 0; m < openIfElses; m++) {
+                                        lines.splice(k + m, 0, "}");
+                                    }
+                                    openIfElses = 0;
+                                    tryAgain = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(openBracketCount === 0) break;
                     }
                 }
             }
