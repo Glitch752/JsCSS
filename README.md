@@ -49,14 +49,18 @@ function anotherFunction(anotherParameter, secondParameter) {
 }
 
 // For loop
-for(var loopIteration = -10; loopIteration < 10; loopIteration++) {
+for(var loopIteration = -5; loopIteration < 5; loopIteration++) {
     if({loopIteration} % 3 === 0) {
         .element{loopIteration} {
             transform: translate(calc({loopIteration} * 10px), 0);
         }
-    } else {
+    } else if ({loopIteration} % 5 === 0) {
         .element{loopIteration} {
             transform: translate(calc({loopIteration} * 10px), calc({loopIteration} * 10px));
+        }
+    } else {
+        .element{loopIteration} {
+            transform: translate(0, calc({loopIteration} * 10px));
         }
     }
 }
@@ -95,32 +99,12 @@ h1::after {
 
 
 /* For loop */
-.element-10 {
-    transform: translate(calc(-10 * 10px), calc(-10 * 10px));
-}
-
-.element-9 {
-    transform: translate(calc(-9 * 10px), 0);
-}
-
-.element-8 {
-    transform: translate(calc(-8 * 10px), calc(-8 * 10px));
-}
-
-.element-7 {
-    transform: translate(calc(-7 * 10px), calc(-7 * 10px));
-}
-
-.element-6 {
-    transform: translate(calc(-6 * 10px), 0);
-}
-
 .element-5 {
     transform: translate(calc(-5 * 10px), calc(-5 * 10px));
 }
 
 .element-4 {
-    transform: translate(calc(-4 * 10px), calc(-4 * 10px));
+    transform: translate(0, calc(-4 * 10px));
 }
 
 .element-3 {
@@ -128,11 +112,11 @@ h1::after {
 }
 
 .element-2 {
-    transform: translate(calc(-2 * 10px), calc(-2 * 10px));
+    transform: translate(0, calc(-2 * 10px));
 }
 
 .element-1 {
-    transform: translate(calc(-1 * 10px), calc(-1 * 10px));
+    transform: translate(0, calc(-1 * 10px));
 }
 
 .element0 {
@@ -140,11 +124,11 @@ h1::after {
 }
 
 .element1 {
-    transform: translate(calc(1 * 10px), calc(1 * 10px));
+    transform: translate(0, calc(1 * 10px));
 }
 
 .element2 {
-    transform: translate(calc(2 * 10px), calc(2 * 10px));
+    transform: translate(0, calc(2 * 10px));
 }
 
 .element3 {
@@ -152,28 +136,9 @@ h1::after {
 }
 
 .element4 {
-    transform: translate(calc(4 * 10px), calc(4 * 10px));
+    transform: translate(0, calc(4 * 10px));
 }
 
-.element5 {
-    transform: translate(calc(5 * 10px), calc(5 * 10px));
-}
-
-.element6 {
-    transform: translate(calc(6 * 10px), 0);
-}
-
-.element7 {
-    transform: translate(calc(7 * 10px), calc(7 * 10px));
-}
-
-.element8 {
-    transform: translate(calc(8 * 10px), calc(8 * 10px));
-}
-
-.element9 {
-    transform: translate(calc(9 * 10px), 0);
-}
 ```
 
 Mathematical statements work using [expr-eval](https://github.com/silentmatt/expr-eval), which allows for many advanced features

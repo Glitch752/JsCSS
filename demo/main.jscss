@@ -41,7 +41,7 @@ function anotherFunction(anotherParameter, secondParameter) {
 }
 
 // For loop
-for(var loopIteration = -10; loopIteration < 10; loopIteration++) {
+for(var loopIteration = -5; loopIteration < 5; loopIteration++) {
     if({loopIteration} % 3 === 0) {
         .element{loopIteration} {
             transform: translate(calc({loopIteration} * 10px), 0);
