@@ -62,7 +62,7 @@ const args = process.argv.slice(2);
 function printUsage() {
     console.log("Usage: node jscss.js <filename> [options]");
     console.log("Options:");
-    console.log("  --eval: use eval instead of custom compiler     NOTE: requires different syntax");
+    console.log("  --eval: use regular javascript instead of custom compiler     NOTE: requires different syntax, but allows for ALL javascript features");
 }
 
 if(args.length < 1) {
@@ -120,8 +120,6 @@ try{
                 console.log(err);
                 process.exit(1);
             }
-            
-            console.log(lines);
         } else {
             ({ lines } = parseLoops(lines));
 
