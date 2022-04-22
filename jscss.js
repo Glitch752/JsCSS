@@ -59,15 +59,35 @@ const colors = {
 
 const args = process.argv.slice(2);
 
+function printUsage() {
+    console.log("Usage: node jscss.js <filename> [options]");
+    console.log("Options:");
+    console.log("  --eval: use eval instead of custom compiler     NOTE: requires different syntax");
+}
+
 if(args.length < 1) {
-    console.log("Usage: node jscss.js <filename>");
+    printUsage();
     process.exit(1);
 }
 
-const filePath = args[0];
+let useEval = false;
+
+let filePath = null;
+
+for(var i = 0; i < args.length; i++) {
+    if(args[i] == "--eval") {
+        useEval = true;
+    } else {
+        filePath = args[i];
+    }
+}
+
+if(!filePath) {
+    printUsage();
+    process.exit(1);
+}
 
 const maxFunctionCallDepth = 20;
-
 
 try{
     if(fs.existsSync(filePath)) {
@@ -76,47 +96,75 @@ try{
         
         let lines = fileContents.split('\n');
 
-        ({ lines } = parseLoops(lines));
+        if(useEval) {
+            const vm = require('vm');
+            const util = require('util');
+            
+            let script = fileContents;
 
-        lines = fixLines(lines);
+            ({ script } = parseEval(script));
 
-        // Parse the comments and variables
-        for(var i = 0; i < lines.length; i++) {
-            let line = lines[i];
-            for(var j = 0; j < line.length; j++) {
-                const lineSplit = line.substring(j);
-                // Change JS comments to CSS comments
-                if(lineSplit.startsWith('//')) {
-                    lines[i] = line.substring(0, j) + "/* " + line.substring(j + 2).trim() + " */";
-                    break;
-                }
+            console.log(script);
+            
+            lines = [];
+            
+            const cons = {
+              log: (...args) => lines.push((util.format(...args))),
+            };
+            const context = vm.createContext({console: cons});
+            
+            try {
+                vm.runInContext(script, context);
+            } catch(err) {
+                errorMessage("Eval error: " + err);
+                console.log(err);
+                process.exit(1);
+            }
+            
+            console.log(lines);
+        } else {
+            ({ lines } = parseLoops(lines));
 
-                // Change JS variable definitions to CSS variable definitions
-                if(lineSplit.startsWith('var ') || lineSplit.startsWith('const ') || lineSplit.startsWith('let ')) {
-                    lines[i] = line.substring(0, j) + "--" + line.substring(j).split(" ")[1].split("=")[0].trim() + ": " + line.substring(j).split("=").slice(1).join("=").trim();
-                    line = lines[i];
+            lines = fixLines(lines);
+
+            // Parse the comments and variables
+            for(var i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                for(var j = 0; j < line.length; j++) {
+                    const lineSplit = line.substring(j);
+                    // Change JS comments to CSS comments
+                    if(lineSplit.startsWith('//')) {
+                        lines[i] = line.substring(0, j) + "/* " + line.substring(j + 2).trim() + " */";
+                        break;
+                    }
+
+                    // Change JS variable definitions to CSS variable definitions
+                    if(lineSplit.startsWith('var ') || lineSplit.startsWith('const ') || lineSplit.startsWith('let ')) {
+                        lines[i] = line.substring(0, j) + "--" + line.substring(j).split(" ")[1].split("=")[0].trim() + ": " + line.substring(j).split("=").slice(1).join("=").trim();
+                        line = lines[i];
+                    }
                 }
             }
+
+            ({ lines } = fixElseIf(lines));
+
+            lines = fixLines(lines);
+
+            // Parse the conditional statements
+            ({ lines } = parseConditionals(lines));
+
+            lines = fixLines(lines);
+
+            // Parse the functions
+            ({ functions, lines } = parseFunctions(lines));
+
+            lines = fixLines(lines);
+
+            // Replace the function calls with the function contents
+            ({ lines } = replaceFunctions(lines, functions));
+
+            lines = fixLines(lines);
         }
-
-        ({ lines } = fixElseIf(lines));
-
-        lines = fixLines(lines);
-
-        // Parse the conditional statements
-        ({ lines } = parseConditionals(lines));
-
-        lines = fixLines(lines);
-
-        // Parse the functions
-        ({ functions, lines } = parseFunctions(lines));
-
-        lines = fixLines(lines);
-
-        // Replace the function calls with the function contents
-        ({ lines } = replaceFunctions(lines, functions));
-
-        lines = fixLines(lines);
 
         fileContents = lines.join("\n");
 
@@ -395,7 +443,6 @@ function parseLoopContents(forLine, lines, contents, loopIterationVar, loopItera
 
 function parseConditionals(lines) {
     let tryAgain = true;
-    console.log(lines.join("\n"));
     while(tryAgain) {
         tryAgain = false;
         for(var i = 0; i < lines.length; i++) {
@@ -553,4 +600,25 @@ function fixElseIf(lines) {
     }
 
     return { lines };
+}
+
+function parseEval(code) {
+    // Replace all code inside of [ ... ] with console.log( ... );
+    for(var i = 0; i < code.length; i++) {
+        let letter = code[i];
+        if(letter === "[") {
+            let openBracketCount = 1;
+            for(var j = i + 1; j < code.length; j++) {
+                if(code[j] === "[") openBracketCount++;
+                if(code[j] === "]") openBracketCount--;
+                if(openBracketCount === 0) break;
+            }
+            let logCode = code.substring(i + 1, j);
+
+            code = code.substring(0, i) + "console.log(`" + logCode + "`);" + code.substring(j + 1);
+            i += "console.log(`".length + j - i;
+        }
+    }
+
+    return { script: code };
 }

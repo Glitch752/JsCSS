@@ -1,0 +1,57 @@
+h1 {
+    font-size: 10rem;
+    color: red;
+    --CSScoolThing: 3rem;
+    color: orange !important;
+    margin: 3rem;
+    background-color: var(--defaultColor, orange);
+}
+
+h1::after {
+    content: "";
+    display: block;
+    height: 100%;
+    width: 100%;
+    background-color: var(green, orange);
+}
+
+.element-5 {
+    transform: translate(0, calc(-5 * 10px));
+}
+
+.element-4 {
+    transform: translate(0, calc(-4 * 10px));
+}
+
+.element-3 {
+    transform: translate(0, calc(-3 * 10px));
+}
+
+.element-2 {
+    transform: translate(0, calc(-2 * 10px));
+}
+
+.element-1 {
+    transform: translate(0, calc(-1 * 10px));
+}
+
+.element0 {
+    transform: translate(0, calc(0 * 10px));
+}
+
+.element1 {
+    transform: translate(0, calc(1 * 10px));
+}
+
+.element2 {
+    transform: translate(0, calc(2 * 10px));
+}
+
+.element3 {
+    transform: translate(0, calc(3 * 10px));
+}
+
+.element4 {
+    transform: translate(0, calc(4 * 10px));
+}
+        
