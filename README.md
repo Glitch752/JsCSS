@@ -286,3 +286,6 @@ h1::after {
     transform: translate(0, calc(4 * 10px));
 }
 ```
+
+### Contributing
+If you would like to make JsCSS better, feel free to open an issue or submit a pull request!
